@@ -5,6 +5,8 @@ from package import Package
 
 def importPackage(package_file):
     hash_table = HashTable()
+    special_notes_array = []
+    early_delivery_array = []
 
     with open(package_file, encoding='utf-8-sig') as packages:
         reader = csv.reader(packages, delimiter=",")
@@ -21,6 +23,11 @@ def importPackage(package_file):
             notes = row[7]
             package = Package(package_id, address, city, state, zip, deadline, weight, notes)
             hash_table.insert_package(package_id, package)
+
+            if notes != "":
+                special_notes_array.append(package_id)
+            elif deadline == "9:00 AM" or deadline == "10:30 AM":
+                early_delivery_array.append(package_id)
     # for i in range(0, 40):
     #     package = hash_table.lookup_package(i)
     #     id = package.lookup_id()
@@ -34,7 +41,7 @@ def importPackage(package_file):
     #     status = package.lookup_delivery_status()
     #     time = package.lookup_delivery_time()
     #     print([id, address, city, state, zip, deadline, weight, notes, status, time])
-    return hash_table
+    return [hash_table, special_notes_array, early_delivery_array]
 
 
 importPackage("package.csv")
