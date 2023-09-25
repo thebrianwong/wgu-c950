@@ -1,6 +1,6 @@
 class Package:
     def __init__(self, id, address, city, state, zip, deadline, weight, notes, deliveryStatus="At Hub",
-                 deliveryTime="Not Delivered Yet"):
+                 loadingTime="Not Loaded Yet", deliveryTime="Not Delivered Yet"):
         self.id = id
         self.address = address
         self.city = city
@@ -10,6 +10,7 @@ class Package:
         self.weight = weight
         self.notes = notes
         self.deliveryStatus = deliveryStatus
+        self.loadingTime = loadingTime
         self.deliveryTime = deliveryTime
 
     def update_address(self, newAddress):
@@ -18,8 +19,11 @@ class Package:
     def update_status(self, newStatus):
         self.deliveryStatus = newStatus
 
-    def update_time(self, newTime):
-        self.deliveryTime = newTime
+    def update_loading_time(self, newLoadingTime):
+        self.loadingTime = newLoadingTime
+
+    def update_delivery_time(self, newDeliveryTime):
+        self.deliveryTime = newDeliveryTime
 
     def lookup_id(self):
         return self.id
@@ -47,6 +51,9 @@ class Package:
 
     def lookup_delivery_status(self):
         return self.deliveryStatus
+
+    def lookup_loading_time(self):
+        return self.loadingTime
 
     def lookup_delivery_time(self):
         return self.deliveryTime
