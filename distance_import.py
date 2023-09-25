@@ -14,5 +14,3 @@ def importDistance(distance_file):
                     distance_map[header] = row_data
                     break
     return distance_map
-
-importDistance("distance.csv")

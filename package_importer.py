@@ -42,6 +42,3 @@ def importPackage(package_file):
     #     time = package.lookup_delivery_time()
     #     print([id, address, city, state, zip, deadline, weight, notes, status, time])
     return [hash_table, special_notes_array, early_delivery_array]
-
-
-importPackage("package.csv")
