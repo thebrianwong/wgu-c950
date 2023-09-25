@@ -9,6 +9,7 @@ class Truck:
         self.speed = speed
         self.packageLoad = []
         self.currentLocation = "4001 South 700 East"
+        self.visitedLocations = []
         # number of minutes at 8:00 AM
         self.currentTime = 480
         self.distance = 0
@@ -49,3 +50,7 @@ class Truck:
         self.updateTruckTime(travelTime)
         self.updateTruckDistance(traveledDistance)
         self.currentLocation = locationName
+        self.visitedLocations.append(locationName)
+
+    def resetVisitedLocations(self):
+        self.visitedLocations = []
