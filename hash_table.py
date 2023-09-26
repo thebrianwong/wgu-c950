@@ -4,6 +4,10 @@ class HashTable:
         for i in range(buckets):
             self.hash_table.append([])
 
+    def __iter__(self):
+        for package in self.hash_table:
+            yield package
+
     def _calculate_bucket(self, id):
         bucket_num = id % len(self.hash_table)
         bucket = self.hash_table[bucket_num]
