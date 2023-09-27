@@ -29,7 +29,10 @@ class Truck:
             return False
         self.packageLoad.append(id)
 
-    def getTruckTime(self):
+    def getTruckTimeMins(self):
+        return self.currentTime
+
+    def getTruckTimeString(self):
         return minsToTimeString(round(self.currentTime))
 
     def updateTruckTime(self, addedTime):
