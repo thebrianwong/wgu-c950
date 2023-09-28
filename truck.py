@@ -25,7 +25,7 @@ class Truck:
 
     def loadTruck(self, id):
         if not self.canLoadPackage():
-            print(f"Truck No. {self.truckId} can't fit any more packages!!!")
+            print(f"Truck No. {self.truckId} can't fit any more packages!!! Unable to add package {id}")
             return False
         self.packageLoad.append(id)
 
