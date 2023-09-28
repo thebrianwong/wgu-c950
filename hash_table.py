@@ -8,6 +8,10 @@ class HashTable:
         for package in self.hash_table:
             yield package
 
+    def __reversed__(self):
+        for package in reversed(self.hash_table):
+            yield package
+
     def _calculate_bucket(self, id):
         bucket_num = id % len(self.hash_table)
         bucket = self.hash_table[bucket_num]
