@@ -137,15 +137,6 @@ def loadTruckAtHub(truck):
                 break
 
 
-def truckHasPackageInLocation(truck, location):
-    for package_id in truck.packageLoad:
-        package = package_hash_table.lookup_package(package_id)
-        packageLocation = package.lookup_address()
-        if packageLocation == location:
-            return True
-    return False
-
-
 def findNextLocationAndDistance(truck):
     closestNewLocation = ""
     closestDistance = 100
