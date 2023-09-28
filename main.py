@@ -9,13 +9,14 @@ from timeUtils import *
 
 package_hash_table, special_notes_array, early_delivery_array = importPackage("package.csv")
 distance_map = importDistance("distance.csv")
-print(special_notes_array)
-print(early_delivery_array)
+# print(special_notes_array)
+# print(early_delivery_array)
 def loadTruckAtHub(truck):
     # format truck time as "XX:XX XM" to update package's load times as time strings
     truckTimeMins = truck.getTruckTimeMins()
     truckTimeString = truck.getTruckTimeString()
     special_ids_to_remove = []
+    # print(truck.packageLoad)
     for package_id in special_notes_array:
         package = package_hash_table.lookup_package(package_id)
 
@@ -116,6 +117,7 @@ def loadTruckAtHub(truck):
     for rawPackage in package_hash_table:
         package_id = rawPackage[0].id
         package = package_hash_table.lookup_package(package_id)
+        # print(package_id)
         if package.lookup_loading_time() == "Not Loaded Yet" and package_id not in special_notes_array and package_id not in early_delivery_array:
             if truck.canLoadPackage():
                 truck.loadTruck(package_id)
@@ -128,6 +130,72 @@ def loadTruckAtHub(truck):
                     early_delivery_array.remove(package_id)
             else:
                 break
+
+def findNextLocationAndDistance(truck):
+    closestNewLocation = ""
+    closestDistance = 100
+
+    truckCurrentLocation = truck.currentLocation
+    truckVisitedLocations = truck.visitedLocations
+    # print(truckCurrentLocation)
+    listOfDistances = distance_map[truckCurrentLocation]
+    for location, distance in listOfDistances.items():
+        if location not in truckVisitedLocations and distance < closestDistance:
+            closestNewLocation = location
+            closestDistance = distance
+    # print(closestNewLocation, closestDistance)
+    return closestNewLocation, closestDistance
+
+def deliverTruckPackages(truck):
+    while len(truck.packageLoad) > 0:
+        hubHasMorePackages = False
+        nextLocation, distance = findNextLocationAndDistance(truck)
+        truck.travelToLocation(nextLocation, distance)
+
+        # deliver any packages addressed to the new location
+        packagesDelivered = []
+        for package_id in truck.packageLoad:
+            package = package_hash_table.lookup_package(package_id)
+            packageAddress = package.lookup_address()
+            if packageAddress == truck.currentLocation:
+                truckTimeString = truck.getTruckTimeString()
+                package.update_status("Delivered")
+                package.update_delivery_time(truckTimeString)
+                packagesDelivered.append(package_id)
+        for package_id in packagesDelivered:
+            truck.packageLoad.remove(package_id)
+        # print(truck.packageLoad)
+
+        # Package 9's address gets corrected at 10:20 AM
+        # 10:20 AM in minutes is 620
+        addressCorrectionTime = 620
+        if truck.getTruckTimeMins() >= addressCorrectionTime:
+            package9 = package_hash_table.lookup_package(9)
+            package9.update_address("410 S State St")
+
+        # check if there are still packages at the hub
+        # when the truck has delivered its initial load
+        # if so, go back to the hub and reload
+        # '''
+        if len(truck.packageLoad) == 0:
+            for rawPackage in package_hash_table:
+                package_id = rawPackage[0].id
+                package = package_hash_table.lookup_package(package_id)
+                if package.lookup_loading_time() == "Not Loaded Yet":
+                    hubHasMorePackages = True
+                    break
+        # if truck.truckId == 1:
+            # print(truck.currentLocation)
+
+        if hubHasMorePackages:
+            hubAddress = "4001 South 700 East"
+            # truckCurrentLocation = truck.currentLocation
+            # distanceToHub = distance_map[truckCurrentLocation][hubAddress]
+            #
+            # truck.resetVisitedLocations()
+            # truck.travelToLocation(hubAddress, distanceToHub)
+            # loadTruckAtHub(truck)
+            # '''
 
 
 truck1 = Truck(1)
@@ -147,10 +215,21 @@ truck1.updateTruckTime(65)
 loadTruckAtHub(truck2)
 loadTruckAtHub(truck1)
 
-print(special_notes_array)
-print(early_delivery_array)
-print(truck1.packageLoad, "length 1", len(truck1.packageLoad))
-print(truck2.packageLoad, "length 2", len(truck2.packageLoad))
+# print(special_notes_array)
+# print(early_delivery_array)
+# print(truck1.packageLoad, "length 1", len(truck1.packageLoad))
+# print(truck2.packageLoad, "length 2", len(truck2.packageLoad))
+
+
+# print(distance_map)
+# deliverTruckPackages(truck2)
+# print(truck2.getTruckDistance(), truck2 .getTruckTimeString())
+
+deliverTruckPackages(truck1)
+print(truck1.getTruckDistance(), truck1.getTruckTimeString())
+
+deliverTruckPackages(truck2)
+print(truck2.getTruckDistance(), truck2.getTruckTimeString())
 
 notLoaded = 0
 for rawPackage in package_hash_table:
@@ -158,5 +237,5 @@ for rawPackage in package_hash_table:
     package = package_hash_table.lookup_package(package_id)
     if package.lookup_loading_time() == "Not Loaded Yet":
         notLoaded += 1
-#     print(package_id, package.lookup_loading_time(), package.lookup_delivery_status())
+    print(package_id, package.lookup_address(), package.lookup_loading_time(), package.lookup_delivery_time(), package.lookup_delivery_status())
 print(notLoaded)
