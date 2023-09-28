@@ -1,6 +1,6 @@
 class Package:
-    def __init__(self, id, address, city, state, zip, deadline, weight, notes, deliveryStatus="At Hub",
-                 loadingTime="Not Loaded Yet", deliveryTime="Not Delivered Yet"):
+    def __init__(self, id, address, city, state, zip, deadline, weight, notes, delivery_status="At Hub",
+                 loading_time="Not Loaded Yet", delivery_time="Not Delivered Yet"):
         self.id = id
         self.address = address
         self.city = city
@@ -9,25 +9,25 @@ class Package:
         self.deadline = deadline
         self.weight = weight
         self.notes = notes
-        self.deliveryStatus = deliveryStatus
-        self.loadingTime = loadingTime
-        self.deliveryTime = deliveryTime
-        self.deliveredBy = ""
+        self.delivery_status = delivery_status
+        self.loading_time = loading_time
+        self.delivery_time = delivery_time
+        self.delivered_by = ""
 
-    def update_address(self, newAddress):
-        self.address = newAddress
+    def update_address(self, new_address):
+        self.address = new_address
 
-    def update_status(self, newStatus):
-        self.deliveryStatus = newStatus
+    def update_status(self, new_status):
+        self.delivery_status = new_status
 
-    def update_loading_time(self, newLoadingTime):
-        self.loadingTime = newLoadingTime
+    def update_loading_time(self, new_loading_time):
+        self.loading_time = new_loading_time
 
-    def update_delivery_time(self, newDeliveryTime):
-        self.deliveryTime = newDeliveryTime
+    def update_delivery_time(self, new_delivery_time):
+        self.delivery_time = new_delivery_time
 
-    def update_delivered_by(self, truckId):
-        self.deliveredBy = truckId
+    def update_delivered_by(self, truck_id):
+        self.delivered_by = truck_id
 
     def lookup_id(self):
         return self.id
@@ -54,13 +54,13 @@ class Package:
         return self.notes
 
     def lookup_delivery_status(self):
-        return self.deliveryStatus
+        return self.delivery_status
 
     def lookup_loading_time(self):
-        return self.loadingTime
+        return self.loading_time
 
     def lookup_delivery_time(self):
-        return self.deliveryTime
+        return self.delivery_time
 
     def lookup_delivered_by(self):
-        return f"Delivered By Truck {self.deliveredBy}"
+        return f"Delivered By Truck {self.delivered_by}"

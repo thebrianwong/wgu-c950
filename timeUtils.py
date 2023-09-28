@@ -1,4 +1,4 @@
-def timeStringToMins(string):
+def time_string_to_mins(string):
     split1 = string.split(" ")
     split2 = split1[0].split(":")
 
@@ -16,7 +16,8 @@ def timeStringToMins(string):
     total_mins = hours + mins
     return total_mins
 
-def minsToTimeString(time):
+
+def mins_to_time_string(time):
     mins = int(time % 60)
     hours = int((time - mins) / 60)
     am_or_pm = "AM"

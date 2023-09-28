@@ -3,7 +3,7 @@ from hash_table import HashTable
 from package import Package
 
 
-def importPackage(package_file):
+def import_package(package_file):
     hash_table = HashTable()
     special_notes_array = []
     early_delivery_array = []
