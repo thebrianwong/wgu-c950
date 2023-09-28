@@ -2,13 +2,11 @@ from package_importer import importPackage
 from distance_import import importDistance
 from truck import Truck
 from driver import Driver
-from package import Package
-from timeUtils import *
-
-
 
 package_hash_table, special_notes_array, early_delivery_array = importPackage("package.csv")
 distance_map = importDistance("distance.csv")
+
+
 # print(special_notes_array)
 # print(early_delivery_array)
 def loadTruckAtHub(truck):
@@ -16,7 +14,6 @@ def loadTruckAtHub(truck):
     truckTimeMins = truck.getTruckTimeMins()
     truckTimeString = truck.getTruckTimeString()
     special_ids_to_remove = []
-    # print(truck.packageLoad)
     for package_id in special_notes_array:
         package = package_hash_table.lookup_package(package_id)
 
@@ -124,10 +121,8 @@ def loadTruckAtHub(truck):
     for rawPackage in reversed(package_hash_table):
         package_id = rawPackage[0].id
         package = package_hash_table.lookup_package(package_id)
-        # print(package_id)
-        # if package_id == 10 and 6 in truck.packageLoad:
-        #     continue
-        if package.lookup_loading_time() == "Not Loaded Yet" and package_id not in special_notes_array and package_id not in early_delivery_array:
+        if (package.lookup_loading_time() == "Not Loaded Yet" and package_id not in special_notes_array
+                and package_id not in early_delivery_array):
             if truck.canLoadPackage():
                 truck.loadTruck(package_id)
                 package.update_loading_time(truckTimeString)
@@ -141,6 +136,7 @@ def loadTruckAtHub(truck):
             else:
                 break
 
+
 def truckHasPackageInLocation(truck, location):
     for package_id in truck.packageLoad:
         package = package_hash_table.lookup_package(package_id)
@@ -149,21 +145,20 @@ def truckHasPackageInLocation(truck, location):
             return True
     return False
 
+
 def findNextLocationAndDistance(truck):
     closestNewLocation = ""
     closestDistance = 100
 
     truckCurrentLocation = truck.currentLocation
     truckVisitedLocations = truck.visitedLocations
-    # print(truckCurrentLocation)
     listOfDistances = distance_map[truckCurrentLocation]
     for location, distance in listOfDistances.items():
-        # if location not in truckVisitedLocations and distance < closestDistance:
         if location not in truckVisitedLocations and distance < closestDistance:
             closestNewLocation = location
             closestDistance = distance
-    # print(closestNewLocation, closestDistance, truck.truckId)
     return closestNewLocation, closestDistance
+
 
 def deliverTruckPackages(truck):
     while len(truck.packageLoad) > 0:
@@ -183,7 +178,6 @@ def deliverTruckPackages(truck):
                 packagesDelivered.append(package_id)
         for package_id in packagesDelivered:
             truck.packageLoad.remove(package_id)
-        # print(truck.packageLoad)
 
         # Package 9's address gets corrected at 10:20 AM
         # 10:20 AM in minutes is 620
@@ -230,7 +224,6 @@ def deliverTruckPackages(truck):
             truck.resetVisitedLocations()
             truck.travelToLocation(hubAddress, distanceToHub)
             loadTruckAtHub(truck)
-            # '''
 
 
 truck1 = Truck(1)
@@ -250,21 +243,14 @@ truck1.updateTruckTime(65)
 loadTruckAtHub(truck2)
 loadTruckAtHub(truck1)
 
-# print(special_notes_array)
-# print(early_delivery_array)
 print(truck1.packageLoad, "truck 1", len(truck1.packageLoad))
 print(truck2.packageLoad, "truck 2", len(truck2.packageLoad))
 
-
-# print(distance_map)
 deliverTruckPackages(truck2)
-print(truck2.getTruckDistance(), truck2 .getTruckTimeString())
+print(truck2.getTruckDistance(), truck2.getTruckTimeString())
 
 deliverTruckPackages(truck1)
 print(truck1.getTruckDistance(), truck1.getTruckTimeString())
-
-# deliverTruckPackages(truck2)
-# print(truck2.getTruckDistance(), truck2.getTruckTimeString())
 
 notLoaded = 0
 for rawPackage in package_hash_table:
@@ -272,6 +258,9 @@ for rawPackage in package_hash_table:
     package = package_hash_table.lookup_package(package_id)
     if package.lookup_loading_time() == "Not Loaded Yet":
         notLoaded += 1
-    print(f"Package ID: {package_id} | {package.lookup_address()} | Loading Time: {package.lookup_loading_time()} | Delivery Time: {package.lookup_delivery_time()} | Deadline: {package.lookup_deadline()} | Status: {package.lookup_delivery_status()} | {package.lookup_delivered_by()}")
+    print(
+        f"Package ID: {package_id} | {package.lookup_address()} | Loading Time: {package.lookup_loading_time()} | "
+        f"Delivery Time: {package.lookup_delivery_time()} | Deadline: {package.lookup_deadline()} | "
+        f"Status: {package.lookup_delivery_status()} | {package.lookup_delivered_by()}")
 print(notLoaded)
 print(special_notes_array)
