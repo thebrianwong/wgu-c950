@@ -9,7 +9,7 @@ class Truck:
         self.speed = speed
         self.packageLoad = []
         self.currentLocation = "4001 South 700 East"
-        self.visitedLocations = []
+        self.visitedLocations = ["4001 South 700 East"]
         # number of minutes at 8:00 AM
         self.currentTime = 480
         self.distance = 0
