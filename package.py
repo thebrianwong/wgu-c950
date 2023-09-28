@@ -12,6 +12,7 @@ class Package:
         self.deliveryStatus = deliveryStatus
         self.loadingTime = loadingTime
         self.deliveryTime = deliveryTime
+        self.deliveredBy = ""
 
     def update_address(self, newAddress):
         self.address = newAddress
@@ -24,6 +25,9 @@ class Package:
 
     def update_delivery_time(self, newDeliveryTime):
         self.deliveryTime = newDeliveryTime
+
+    def update_delivered_by(self, truckId):
+        self.deliveredBy = truckId
 
     def lookup_id(self):
         return self.id
@@ -57,3 +61,6 @@ class Package:
 
     def lookup_delivery_time(self):
         return self.deliveryTime
+
+    def lookup_delivered_by(self):
+        return f"Delivered By Truck {self.deliveredBy}"
