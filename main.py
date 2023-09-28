@@ -1,18 +1,18 @@
-from package_importer import importPackage
-from distance_import import importDistance
+from package_importer import import_package
+from distance_import import import_distance
 from truck import Truck
 from driver import Driver
 
-package_hash_table, special_notes_array, early_delivery_array = importPackage("package.csv")
-distance_map = importDistance("distance.csv")
+package_hash_table, special_notes_array, early_delivery_array = import_package("package.csv")
+distance_map = import_distance("distance.csv")
 
 
 # print(special_notes_array)
 # print(early_delivery_array)
-def loadTruckAtHub(truck):
+def load_truck_at_hub(truck):
     # format truck time as "XX:XX XM" to update package's load times as time strings
-    truckTimeMins = truck.getTruckTimeMins()
-    truckTimeString = truck.getTruckTimeString()
+    truck_time_mins = truck.get_truck_time_mins()
+    truck_time_string = truck.get_truck_time_string()
     special_ids_to_remove = []
     for package_id in special_notes_array:
         package = package_hash_table.lookup_package(package_id)
@@ -22,10 +22,10 @@ def loadTruckAtHub(truck):
         # if so, load the package (probably doesn't matter which truck)
         if package_id == 9:
             # 10:20 AM in number of minutes
-            timeWhenAddressFixed = 620
-            if truckTimeMins >= timeWhenAddressFixed:
-                truck.loadTruck(package_id)
-                package.update_loading_time(truckTimeString)
+            time_when_address_fixed = 620
+            if truck_time_mins >= time_when_address_fixed:
+                truck.load_truck(package_id)
+                package.update_loading_time(truck_time_string)
                 package.update_status("En Route")
                 package.update_delivered_by(truck.truckId)
 
@@ -33,8 +33,8 @@ def loadTruckAtHub(truck):
 
         # only load delayed packages to Truck 1 as Truck 1 will intentionally depart later than Truck 2
         if truck.truckId == 1 and "Delayed on flight" in package.lookup_notes():
-            truck.loadTruck(package_id)
-            package.update_loading_time(truckTimeString)
+            truck.load_truck(package_id)
+            package.update_loading_time(truck_time_string)
             package.update_status("En Route")
             package.update_delivered_by(truck.truckId)
 
@@ -46,11 +46,11 @@ def loadTruckAtHub(truck):
         elif truck.truckId == 2:
             # skip 3 on initial load since it has EOD delivery and
             # room needs to be made for 40
-            if truckTimeString == "8:00 AM" and package_id == 3:
+            if truck_time_string == "8:00 AM" and package_id == 3:
                 continue
             if "Can only be on truck 2" in package.lookup_notes():
-                truck.loadTruck(package_id)
-                package.update_loading_time(truckTimeString)
+                truck.load_truck(package_id)
+                package.update_loading_time(truck_time_string)
                 package.update_status("En Route")
                 package.update_delivered_by(truck.truckId)
 
@@ -60,38 +60,38 @@ def loadTruckAtHub(truck):
 
             elif "Must be delivered with" in package.lookup_notes():
                 # parse special notes for packages that have to be delivered together
-                splitString = package.lookup_notes().split(" ")
-                firstPackageId = int(splitString[4].replace(",", ""))
-                firstPackage = package_hash_table.lookup_package(firstPackageId)
-                secondPackageId = int(splitString[5])
-                secondPackage = package_hash_table.lookup_package(secondPackageId)
+                split_string = package.lookup_notes().split(" ")
+                first_package_id = int(split_string[4].replace(",", ""))
+                first_package = package_hash_table.lookup_package(first_package_id)
+                second_package_id = int(split_string[5])
+                second_package = package_hash_table.lookup_package(second_package_id)
 
                 special_ids_to_remove.append(package_id)
                 if package_id in early_delivery_array:
                     early_delivery_array.remove(package_id)
 
-                truck.loadTruck(package_id)
-                package.update_loading_time(truckTimeString)
+                truck.load_truck(package_id)
+                package.update_loading_time(truck_time_string)
                 package.update_status("En Route")
                 package.update_delivered_by(truck.truckId)
                 if package_id in early_delivery_array:
                     early_delivery_array.remove(package_id)
 
-                if firstPackageId not in truck.packageLoad:
-                    truck.loadTruck(firstPackageId)
-                    firstPackage.update_loading_time(truckTimeString)
-                    firstPackage.update_status("En Route")
-                    firstPackage.update_delivered_by(truck.truckId)
-                    if firstPackageId in early_delivery_array:
-                        early_delivery_array.remove(firstPackageId)
+                if first_package_id not in truck.package_load:
+                    truck.load_truck(first_package_id)
+                    first_package.update_loading_time(truck_time_string)
+                    first_package.update_status("En Route")
+                    first_package.update_delivered_by(truck.truckId)
+                    if first_package_id in early_delivery_array:
+                        early_delivery_array.remove(first_package_id)
 
-                if secondPackageId not in truck.packageLoad:
-                    truck.loadTruck(secondPackageId)
-                    secondPackage.update_loading_time(truckTimeString)
-                    secondPackage.update_status("En Route")
-                    secondPackage.update_delivered_by(truck.truckId)
-                    if secondPackageId in early_delivery_array:
-                        early_delivery_array.remove(secondPackageId)
+                if second_package_id not in truck.package_load:
+                    truck.load_truck(second_package_id)
+                    second_package.update_loading_time(truck_time_string)
+                    second_package.update_status("En Route")
+                    second_package.update_delivered_by(truck.truckId)
+                    if second_package_id in early_delivery_array:
+                        early_delivery_array.remove(second_package_id)
 
     # now that the iteration of the special notes array is done
     # remove all the package ids that were loaded
@@ -102,10 +102,10 @@ def loadTruckAtHub(truck):
     if truck.truckId == 2:
         early_ids_to_remove = []
         for package_id in early_delivery_array:
-            if truck.canLoadPackage():
+            if truck.can_load_package():
                 package = package_hash_table.lookup_package(package_id)
-                truck.loadTruck(package_id)
-                package.update_loading_time(truckTimeString)
+                truck.load_truck(package_id)
+                package.update_loading_time(truck_time_string)
                 package.update_status("En Route")
                 package.update_delivered_by(truck.truckId)
                 early_ids_to_remove.append(package_id)
@@ -118,14 +118,14 @@ def loadTruckAtHub(truck):
         for id in early_ids_to_remove:
             early_delivery_array.remove(id)
 
-    for rawPackage in reversed(package_hash_table):
-        package_id = rawPackage[0].id
+    for raw_package in reversed(package_hash_table):
+        package_id = raw_package[0].id
         package = package_hash_table.lookup_package(package_id)
         if (package.lookup_loading_time() == "Not Loaded Yet" and package_id not in special_notes_array
                 and package_id not in early_delivery_array):
-            if truck.canLoadPackage():
-                truck.loadTruck(package_id)
-                package.update_loading_time(truckTimeString)
+            if truck.can_load_package():
+                truck.load_truck(package_id)
+                package.update_loading_time(truck_time_string)
                 package.update_status("En Route")
                 package.update_delivered_by(truck.truckId)
 
@@ -137,84 +137,81 @@ def loadTruckAtHub(truck):
                 break
 
 
-def findNextLocationAndDistance(truck):
-    closestNewLocation = ""
-    closestDistance = 100
+def find_next_location_and_distance(truck):
+    closest_new_location = ""
+    closest_distance = 100
 
-    truckCurrentLocation = truck.currentLocation
-    truckVisitedLocations = truck.visitedLocations
-    listOfDistances = distance_map[truckCurrentLocation]
-    for location, distance in listOfDistances.items():
-        if location not in truckVisitedLocations and distance < closestDistance:
-            closestNewLocation = location
-            closestDistance = distance
-    return closestNewLocation, closestDistance
+    truck_current_location = truck.current_location
+    truck_visited_locations = truck.visited_locations
+    list_of_distances = distance_map[truck_current_location]
+    for location, distance in list_of_distances.items():
+        if location not in truck_visited_locations and distance < closest_distance:
+            closest_new_location = location
+            closest_distance = distance
+    return closest_new_location, closest_distance
 
 
-def deliverTruckPackages(truck):
-    while len(truck.packageLoad) > 0:
-        hubHasMorePackages = False
-        nextLocation, distance = findNextLocationAndDistance(truck)
-        truck.travelToLocation(nextLocation, distance)
+def deliver_truck_packages(truck):
+    while len(truck.package_load) > 0:
+        hub_has_more_packages = False
+        next_location, distance = find_next_location_and_distance(truck)
+        truck.travel_to_location(next_location, distance)
 
         # deliver any packages addressed to the new location
-        packagesDelivered = []
-        for package_id in truck.packageLoad:
+        packages_delivered = []
+        for package_id in truck.package_load:
             package = package_hash_table.lookup_package(package_id)
-            packageAddress = package.lookup_address()
-            if packageAddress == truck.currentLocation:
-                truckTimeString = truck.getTruckTimeString()
+            package_address = package.lookup_address()
+            if package_address == truck.current_location:
+                truck_time_string = truck.get_truck_time_string()
                 package.update_status("Delivered")
-                package.update_delivery_time(truckTimeString)
-                packagesDelivered.append(package_id)
-        for package_id in packagesDelivered:
-            truck.packageLoad.remove(package_id)
+                package.update_delivery_time(truck_time_string)
+                packages_delivered.append(package_id)
+        for package_id in packages_delivered:
+            truck.package_load.remove(package_id)
 
         # Package 9's address gets corrected at 10:20 AM
         # 10:20 AM in minutes is 620
-        addressCorrectionTime = 620
-        if truck.getTruckTimeMins() >= addressCorrectionTime:
+        address_correction_time = 620
+        if truck.get_truck_time_mins() >= address_correction_time:
             package9 = package_hash_table.lookup_package(9)
             package9.update_address("410 S State St")
 
-        # check if there are still packages at the hub
-        # when the truck has delivered its initial load
-        # if so, go back to the hub and reload
-        # '''
-        # 3 or 15 works for whatever reason, 15 is better at lil under 100
-        # mb the likelihood that the closest location has a package is higher
-        # when you are starting from the hub
-        # upon further inspection, it seems like 3 and 15 dont delivery all packages for some reason
+        # backtrack to hub as appropriate to reload packages
+        # don't backtrack after delivering the initial load
+        # as doing so will require the truck to traverse the
+        # same locations again before driving to new locations
 
-        # actually 2, 10 if truck 2 then truck 1
-        # both have issues with not meeting some deadlines
-
-        # if truck 1 delivers extra and length 7, then maybe, need to deliver package #3
-        if len(truck.packageLoad) == 7 and truck.truckId == 1:
-            for rawPackage in package_hash_table:
-                package_id = rawPackage[0].id
+        # truck 1 doesn't have as big of a burden as truck 2
+        # in regard to delivering packages with deadline at or
+        # before 10:30 AM, so truck 1 will deliver the 8 packages
+        # that were not a part of the trucks' initial loads
+        if len(truck.package_load) == 7 and truck.truckId == 1:
+            for raw_package in package_hash_table:
+                package_id = raw_package[0].id
                 package = package_hash_table.lookup_package(package_id)
                 if package.lookup_loading_time() == "Not Loaded Yet":
-                    hubHasMorePackages = True
+                    hub_has_more_packages = True
                     break
 
-        if len(truck.packageLoad) == 15 and truck.truckId == 2:
-            for rawPackage in package_hash_table:
-                package_id = rawPackage[0].id
+        # truck 2 has to go back and load the previously skipped package 3
+        if len(truck.package_load) == 15 and truck.truckId == 2:
+            for raw_package in package_hash_table:
+                package_id = raw_package[0].id
                 package = package_hash_table.lookup_package(package_id)
                 if package.lookup_loading_time() == "Not Loaded Yet":
-                    hubHasMorePackages = True
+                    hub_has_more_packages = True
                     break
 
-        if hubHasMorePackages:
-            hubAddress = "4001 South 700 East"
-            truckCurrentLocation = truck.currentLocation
-            distanceToHub = distance_map[truckCurrentLocation][hubAddress]
-            print(distanceToHub)
+        if hub_has_more_packages:
+            hub_address = "4001 South 700 East"
+            truck_current_location = truck.current_location
+            distance_to_hub = distance_map[truck_current_location][hub_address]
+            print(distance_to_hub)
 
-            truck.resetVisitedLocations()
-            truck.travelToLocation(hubAddress, distanceToHub)
-            loadTruckAtHub(truck)
+            truck.reset_visited_locations()
+            truck.travel_to_location(hub_address, distance_to_hub)
+            load_truck_at_hub(truck)
 
 
 truck1 = Truck(1)
@@ -224,28 +221,28 @@ truck3 = Truck(3)
 driver1 = Driver("Bimmy")
 driver2 = Driver("Jimmy")
 
-truck1.addDriver(driver1)
-truck2.addDriver(driver2)
+truck1.add_driver(driver1)
+truck2.add_driver(driver2)
 
 # Truck 1 will wait for the delayed packages and depart at 9:05 AM
 # waiting from 8:00 AM to 9:05 AM takes 65 minutes
-truck1.updateTruckTime(65)
+truck1.update_truck_time(65)
 
-loadTruckAtHub(truck2)
-loadTruckAtHub(truck1)
+load_truck_at_hub(truck2)
+load_truck_at_hub(truck1)
 
-print(truck1.packageLoad, "truck 1", len(truck1.packageLoad))
-print(truck2.packageLoad, "truck 2", len(truck2.packageLoad))
+print(truck1.package_load, "truck 1", len(truck1.package_load))
+print(truck2.package_load, "truck 2", len(truck2.package_load))
 
-deliverTruckPackages(truck2)
-print(truck2.getTruckDistance(), truck2.getTruckTimeString())
+deliver_truck_packages(truck2)
+print(truck2.get_truck_distance(), truck2.get_truck_time_string())
 
-deliverTruckPackages(truck1)
-print(truck1.getTruckDistance(), truck1.getTruckTimeString())
+deliver_truck_packages(truck1)
+print(truck1.get_truck_distance(), truck1.get_truck_time_string())
 
 notLoaded = 0
-for rawPackage in package_hash_table:
-    package_id = rawPackage[0].id
+for raw_package in package_hash_table:
+    package_id = raw_package[0].id
     package = package_hash_table.lookup_package(package_id)
     if package.lookup_loading_time() == "Not Loaded Yet":
         notLoaded += 1
