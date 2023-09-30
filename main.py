@@ -3,18 +3,14 @@ from package_importer import import_package
 from distance_import import import_distance
 from truck import Truck
 from driver import Driver
+from timeUtils import *
+import math
 
-package_hash_table, special_notes_array, early_delivery_array = import_package("package.csv")
-distance_map = import_distance("distance.csv")
-
-
-# print(special_notes_array)
-# print(early_delivery_array)
 
 # used to initially load Truck 1 and Truck 2, as well as
 # when the two trucks deliver the 8 package not included
 # in the initial load
-def load_truck_at_hub(truck):
+def load_truck_at_hub(truck, package_hash_table, special_notes_array, early_delivery_array):
     # use the truck time in minutes for comparison logic
     truck_time_mins = truck.get_truck_time_mins()
     # change the package load time based on the current time of the loading truck
@@ -153,7 +149,7 @@ def load_truck_at_hub(truck):
 
 
 # nearest neighbor algorithm
-def find_next_location_and_distance(truck):
+def find_next_location_and_distance(truck, distance_map):
     closest_new_location = ""
     # the first location looked at will always be
     # the closest (1 of 1)
@@ -176,14 +172,27 @@ def find_next_location_and_distance(truck):
 
 # main function that handles delivering all of the packages
 # and reloading the trucks
-def deliver_truck_packages(truck):
+def deliver_truck_packages(truck, distance_map, package_hash_table, special_notes_array, early_delivery_array, end_time):
     # break out of the loop once the truck has delivered
     # all of its packages and there are no more packages
     # remaining in the hub that the truck is allowed
     # to deliver (special note constraint of only Truck 2)
     while len(truck.package_load) > 0:
         hub_has_more_packages = False
-        next_location, distance = find_next_location_and_distance(truck)
+        next_location, distance = find_next_location_and_distance(truck, distance_map)
+
+        # calculate the time it will take to travel to the next location
+        # if that time will push the current time pass the
+        # inputted time, stop delivering
+        # pushing it to the exact time is fine and desired behavior
+        # round the calculated time down to ignore the truck's time in seconds
+        # the user's time is in hours and seconds, so time in seconds can be disregarded
+        time_to_new_location = truck.calculate_time(distance)
+        new_truck_time = math.floor(truck.get_truck_time_mins() + time_to_new_location)
+
+        if end_time is not None and new_truck_time > end_time:
+            break
+
         truck.travel_to_location(next_location, distance)
 
         # deliver any packages addressed to the new location
@@ -245,7 +254,6 @@ def deliver_truck_packages(truck):
             hub_address = "4001 South 700 East"
             truck_current_location = truck.current_location
             distance_to_hub = distance_map[truck_current_location][hub_address]
-            print(distance_to_hub)
 
             # reset the truck's visited locations as traveling back to the hub
             # will add the hub as a visited location
@@ -253,50 +261,130 @@ def deliver_truck_packages(truck):
             # complications in the truck's traversal
             truck.reset_visited_locations()
             truck.travel_to_location(hub_address, distance_to_hub)
-            load_truck_at_hub(truck)
+            load_truck_at_hub(truck, package_hash_table, special_notes_array, early_delivery_array)
 
 
-# instantiate the 3 trucks
-truck1 = Truck(1)
-truck2 = Truck(2)
-truck3 = Truck(3)
+def execute_simulation(user_end_time=None):
+    # get assignment data
+    package_hash_table, special_notes_array, early_delivery_array = import_package("package.csv")
+    distance_map = import_distance("distance.csv")
 
-# instantiate the 2 drivers
-driver1 = Driver("Bimmy")
-driver2 = Driver("Jimmy")
+    # instantiate the 3 trucks
+    truck1 = Truck(1)
+    truck2 = Truck(2)
+    truck3 = Truck(3)
 
-# assign the 2 drivers to the first 2 trucks
-truck1.add_driver(driver1)
-truck2.add_driver(driver2)
+    # instantiate the 2 drivers
+    driver1 = Driver("Bimmy")
+    driver2 = Driver("Jimmy")
 
-# Truck 1 will wait for the delayed packages and depart at 9:05 AM
-# waiting from 8:00 AM to 9:05 AM takes 65 minutes
-truck1.update_truck_time(65)
+    # assign the 2 drivers to the first 2 trucks
+    truck1.add_driver(driver1)
+    truck2.add_driver(driver2)
 
-# Truck 2 loads at 8:00 AM
-# Truck 1 waits until 9:05 AM then loaded
-load_truck_at_hub(truck2)
-load_truck_at_hub(truck1)
+    # Truck 1 will wait for the delayed packages and depart at 9:05 AM
+    # waiting from 8:00 AM to 9:05 AM takes 65 minutes
+    truck1.update_truck_time(65)
 
-print(truck1.package_load, "truck 1", len(truck1.package_load))
-print(truck2.package_load, "truck 2", len(truck2.package_load))
+    # Truck 2 loads at 8:00 AM
+    # Truck 1 waits until 9:05 AM then loaded
+    load_truck_at_hub(truck2, package_hash_table, special_notes_array, early_delivery_array)
 
-# Truck 2 sets off first based on its load time
-deliver_truck_packages(truck2)
-print(truck2.get_truck_distance(), truck2.get_truck_time_string())
+    # skip loading Truck 1 if the user inputs a time before 9:05 AM
+    # either the user wants to see the full simulation or the user entered a time
+    # don't load Truck 1 if the user input is before 9:05 AM
+    truck_1_load_time = 545
+    if (user_end_time is None) or (user_end_time is not None and user_end_time >= truck_1_load_time):
+        load_truck_at_hub(truck1, package_hash_table, special_notes_array, early_delivery_array)
 
-deliver_truck_packages(truck1)
-print(truck1.get_truck_distance(), truck1.get_truck_time_string())
+    # Truck 2 sets off first based on its load time
+    deliver_truck_packages(truck2, distance_map, package_hash_table, special_notes_array, early_delivery_array, user_end_time)
+    deliver_truck_packages(truck1, distance_map, package_hash_table, special_notes_array, early_delivery_array, user_end_time)
 
-notLoaded = 0
-for raw_package in package_hash_table:
-    package_id = raw_package[0].id
-    package = package_hash_table.lookup_package(package_id)
-    if package.lookup_loading_time() == "Not Loaded Yet":
-        notLoaded += 1
-    print(
-        f"Package ID: {package_id} | {package.lookup_address()} | Loading Time: {package.lookup_loading_time()} | "
-        f"Delivery Time: {package.lookup_delivery_time()} | Deadline: {package.lookup_deadline()} | "
-        f"Status: {package.lookup_delivery_status()}")
-print(notLoaded)
-print(special_notes_array)
+    notLoaded = 0
+    package_40_string = ""
+    for raw_package in package_hash_table:
+        package_id = raw_package[0].id
+        package = package_hash_table.lookup_package(package_id)
+        if package.lookup_loading_time() == "Not Loaded Yet":
+            notLoaded += 1
+        if package_id == 40:
+            package_40_string = (f"Package ID: {package_id} | {package.lookup_address()} |"
+                                 f"Loading Time: {package.lookup_loading_time()} | "
+                                 f"Delivery Time: {package.lookup_delivery_time()} | Deadline: {package.lookup_deadline()} | "
+                                 f"Status: {package.lookup_delivery_status()}")
+            continue
+        print(
+            f"Package ID: {package_id} | {package.lookup_address()} | Loading Time: {package.lookup_loading_time()} | "
+            f"Delivery Time: {package.lookup_delivery_time()} | Deadline: {package.lookup_deadline()} | "
+            f"Status: {package.lookup_delivery_status()}")
+
+    print(f"Truck 1 traveled {round(truck1.get_truck_distance())} miles.")
+    print(f"Truck 2 traveled {round(truck2.get_truck_distance())} miles.")
+    print(f"Truck 3 traveled {round(truck3.get_truck_distance())} miles.")
+    print(f"A total of "
+          f"{round(truck1.get_truck_distance()) + round(truck2.get_truck_distance()) + round(truck3.get_truck_distance())} "
+          f"miles were traveled.")
+
+# facilitate console and user input
+if __name__ == '__main__':
+    print("--------------------")
+    print("| WGUPS Simulation |")
+    print("--------------------")
+
+    # loop until the user exits
+    keep_running = True
+    while keep_running:
+        print("\nOptions:")
+        print("1. Deliver All Packages")
+        print("2. View Status at a Certain Time")
+        print("3. Close the Program")
+        option = input("Choose an option (1, 2, or 3): ")
+        if option == "1":
+            execute_simulation()
+        elif option == "2":
+            hours = ""
+            mins = ""
+            am_or_pm = ""
+
+            # get input for hours
+            need_valid_hours = True
+            while need_valid_hours:
+                hours = int(input("Hours (1 - 12)? "))
+                if hours >= 1 and hours <= 12:
+                    need_valid_hours = False
+                else:
+                    print("Please enter a value between 1 and 12.")
+
+            # get input for minutes
+            need_valid_minutes = True
+            while need_valid_minutes:
+                mins = int(input("Minutes (0 - 59)? "))
+                if mins >= 0 and mins <= 59:
+                    need_valid_minutes = False
+                else:
+                    print("Please enter a value between 0 and 59.")
+
+            need_valid_am_or_pm = True
+            while need_valid_am_or_pm:
+                am_or_pm = input("AM or PM? ")
+                if am_or_pm == "AM" or am_or_pm == "PM":
+                    need_valid_am_or_pm = False
+                else:
+                    print("Please choose either AM or PM.")
+
+            # convert inputted time into time in minutes
+            # for logical comparisons that check for
+            # Truck 1's loading and when to stop and check status
+            user_time_string = f"{hours}:{mins} {am_or_pm}"
+            user_time_mins = time_string_to_mins((user_time_string))
+
+            # reformat the string so minutes have a leading 0 when appropriate
+            formatted_time_string = mins_to_time_string(user_time_mins)
+
+            print(f"Checking status at {formatted_time_string}.")
+            execute_simulation(user_time_mins)
+        elif option == "3":
+            keep_running = False
+        else:
+            print("That is not a valid option, please try again.")
