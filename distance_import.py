@@ -1,5 +1,6 @@
 import csv
 
+
 def import_distance(distance_file):
     distance_map = {}
     with open(distance_file, encoding='utf-8-sig') as distances:
