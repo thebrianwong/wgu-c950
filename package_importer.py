@@ -28,17 +28,5 @@ def import_package(package_file):
                 special_notes_array.append(package_id)
             elif deadline == "9:00 AM" or deadline == "10:30 AM":
                 early_delivery_array.append(package_id)
-    # for i in range(0, 40):
-    #     package = hash_table.lookup_package(i)
-    #     id = package.lookup_id()
-    #     address = package.lookup_address()
-    #     city = package.lookup_city()
-    #     state = package.lookup_state()
-    #     zip = package.lookup_zip()
-    #     deadline = package.lookup_deadline()
-    #     weight = package.lookup_weight()
-    #     notes = package.lookup_notes()
-    #     status = package.lookup_delivery_status()
-    #     time = package.lookup_delivery_time()
-    #     print([id, address, city, state, zip, deadline, weight, notes, status, time])
+
     return [hash_table, special_notes_array, early_delivery_array]
