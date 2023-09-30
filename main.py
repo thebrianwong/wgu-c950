@@ -172,7 +172,8 @@ def find_next_location_and_distance(truck, distance_map):
 
 # main function that handles delivering all of the packages
 # and reloading the trucks
-def deliver_truck_packages(truck, distance_map, package_hash_table, special_notes_array, early_delivery_array, end_time):
+def deliver_truck_packages(truck, distance_map, package_hash_table, special_notes_array, early_delivery_array,
+                           end_time):
     # break out of the loop once the truck has delivered
     # all of its packages and there are no more packages
     # remaining in the hub that the truck is allowed
@@ -298,26 +299,24 @@ def execute_simulation(user_end_time=None):
         load_truck_at_hub(truck1, package_hash_table, special_notes_array, early_delivery_array)
 
     # Truck 2 sets off first based on its load time
-    deliver_truck_packages(truck2, distance_map, package_hash_table, special_notes_array, early_delivery_array, user_end_time)
-    deliver_truck_packages(truck1, distance_map, package_hash_table, special_notes_array, early_delivery_array, user_end_time)
+    deliver_truck_packages(truck2, distance_map, package_hash_table, special_notes_array, early_delivery_array,
+                           user_end_time)
+    deliver_truck_packages(truck1, distance_map, package_hash_table, special_notes_array, early_delivery_array,
+                           user_end_time)
 
-    notLoaded = 0
     package_40_string = ""
     for raw_package in package_hash_table:
         package_id = raw_package[0].id
         package = package_hash_table.lookup_package(package_id)
-        if package.lookup_loading_time() == "Not Loaded Yet":
-            notLoaded += 1
+        string = (
+            f"| Package ID: {package_id:^6} | Loading Time: {package.lookup_loading_time():^11} | "
+            f"Delivery Time: {package.lookup_delivery_time():^11} | Deadline: {package.lookup_deadline():^11} |")
         if package_id == 40:
-            package_40_string = (f"Package ID: {package_id} | {package.lookup_address()} |"
-                                 f"Loading Time: {package.lookup_loading_time()} | "
-                                 f"Delivery Time: {package.lookup_delivery_time()} | Deadline: {package.lookup_deadline()} | "
-                                 f"Status: {package.lookup_delivery_status()}")
-            continue
-        print(
-            f"Package ID: {package_id} | {package.lookup_address()} | Loading Time: {package.lookup_loading_time()} | "
-            f"Delivery Time: {package.lookup_delivery_time()} | Deadline: {package.lookup_deadline()} | "
-            f"Status: {package.lookup_delivery_status()}")
+            package_40_string = string
+        else:
+            print(string)
+
+    print(package_40_string)
 
     print(f"Truck 1 traveled {round(truck1.get_truck_distance())} miles.")
     print(f"Truck 2 traveled {round(truck2.get_truck_distance())} miles.")
@@ -325,6 +324,7 @@ def execute_simulation(user_end_time=None):
     print(f"A total of "
           f"{round(truck1.get_truck_distance()) + round(truck2.get_truck_distance()) + round(truck3.get_truck_distance())} "
           f"miles were traveled.")
+
 
 # facilitate console and user input
 if __name__ == '__main__':
