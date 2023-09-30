@@ -44,12 +44,12 @@ class Truck:
     def update_truck_distance(self, added_distance):
         self.distance += added_distance
 
-    def _calculate_time(self, distance):
+    def calculate_time(self, distance):
         time = distance / self.speed * 60
         return time
 
     def travel_to_location(self, location_name, traveled_distance):
-        travel_time = self._calculate_time(traveled_distance)
+        travel_time = self.calculate_time(traveled_distance)
         self.update_truck_time(travel_time)
         self.update_truck_distance(traveled_distance)
         self.current_location = location_name
