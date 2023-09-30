@@ -309,8 +309,8 @@ def execute_simulation(user_end_time=None):
         package_id = raw_package[0].id
         package = package_hash_table.lookup_package(package_id)
         string = (
-            f"| Package ID: {package_id:^6} | Loading Time: {package.lookup_loading_time():^11} | "
-            f"Delivery Time: {package.lookup_delivery_time():^11} | Deadline: {package.lookup_deadline():^11} |")
+            f"| Package ID: {package_id:^6} | Loading Time: {package.lookup_loading_time():^21} | "
+            f"Delivery Time: {package.lookup_delivery_time():^21} | Deadline: {package.lookup_deadline():^11} |")
         if package_id == 40:
             package_40_string = string
         else:
