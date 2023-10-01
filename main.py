@@ -371,19 +371,25 @@ if __name__ == '__main__':
             # get input for hours
             need_valid_hours = True
             while need_valid_hours:
-                hours = int(input("Hours (1 - 12)? "))
-                if hours >= 1 and hours <= 12:
-                    need_valid_hours = False
-                else:
+                try:
+                    hours = int(input("Hours (1 - 12)? "))
+                    if hours >= 1 and hours <= 12:
+                        need_valid_hours = False
+                    else:
+                        print("Please enter a value between 1 and 12.")
+                except ValueError:
                     print("Please enter a value between 1 and 12.")
 
             # get input for minutes
             need_valid_minutes = True
             while need_valid_minutes:
-                mins = int(input("Minutes (0 - 59)? "))
-                if mins >= 0 and mins <= 59:
-                    need_valid_minutes = False
-                else:
+                try:
+                    mins = int(input("Minutes (0 - 59)? "))
+                    if mins >= 0 and mins <= 59:
+                        need_valid_minutes = False
+                    else:
+                        print("Please enter a value between 0 and 59.")
+                except ValueError:
                     print("Please enter a value between 0 and 59.")
 
             need_valid_am_or_pm = True
@@ -413,26 +419,35 @@ if __name__ == '__main__':
 
             need_valid_package_id = True
             while need_valid_package_id:
-                package_id = int(input("Package ID (1 - 40)? "))
-                if package_id >= 1 and package_id <= 40:
-                    need_valid_package_id = False
-                else:
+                try:
+                    package_id = int(input("Package ID (1 - 40)? "))
+                    if package_id >= 1 and package_id <= 40:
+                        need_valid_package_id = False
+                    else:
+                        print("Please enter a value between 1 and 40.")
+                except ValueError:
                     print("Please enter a value between 1 and 40.")
 
             need_valid_hours = True
             while need_valid_hours:
-                hours = int(input("Hours (1 - 12)? "))
-                if hours >= 1 and hours <= 12:
-                    need_valid_hours = False
-                else:
+                try:
+                    hours = int(input("Hours (1 - 12)? "))
+                    if hours >= 1 and hours <= 12:
+                        need_valid_hours = False
+                    else:
+                        print("Please enter a value between 1 and 12.")
+                except ValueError:
                     print("Please enter a value between 1 and 12.")
 
             need_valid_minutes = True
             while need_valid_minutes:
-                mins = int(input("Minutes (0 - 59)? "))
-                if mins >= 0 and mins <= 59:
-                    need_valid_minutes = False
-                else:
+                try:
+                    mins = int(input("Minutes (0 - 59)? "))
+                    if mins >= 0 and mins <= 59:
+                        need_valid_minutes = False
+                    else:
+                        print("Please enter a value between 0 and 59.")
+                except ValueError:
                     print("Please enter a value between 0 and 59.")
 
             need_valid_am_or_pm = True
