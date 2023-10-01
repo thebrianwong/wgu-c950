@@ -289,7 +289,10 @@ def execute_simulation(user_end_time=None):
 
     # Truck 2 loads at 8:00 AM
     # Truck 1 waits until 9:05 AM then loaded
-    load_truck_at_hub(truck2, package_hash_table, special_notes_array, early_delivery_array)
+    # 8:00 AM in minutes
+    truck_2_load_time = 480
+    if (user_end_time is None) or (user_end_time is not None and user_end_time >= truck_2_load_time):
+        load_truck_at_hub(truck2, package_hash_table, special_notes_array, early_delivery_array)
 
     # skip loading Truck 1 if the user inputs a time before 9:05 AM
     # either the user wants to see the full simulation or the user entered a time
