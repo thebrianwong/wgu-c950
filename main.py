@@ -265,7 +265,7 @@ def deliver_truck_packages(truck, distance_map, package_hash_table, special_note
             load_truck_at_hub(truck, package_hash_table, special_notes_array, early_delivery_array)
 
 
-def execute_simulation(user_end_time=None):
+def execute_simulation(user_end_time=None, user_package_id=None):
     # get assignment data
     package_hash_table, special_notes_array, early_delivery_array = import_package("package.csv")
     distance_map = import_distance("distance.csv")
@@ -309,8 +309,8 @@ def execute_simulation(user_end_time=None):
 
     # display header
     print((
-        f"|{'Package ID':^12}|{'Address':^40}|{'City':^24}|{'State':^8}|{'Zip':^8}|{'Weight (kg)':^14}|"
-        f"{'Loading Time':^20}|{'Delivery Time':^20}|{'Deadline':^14}|"))
+        f"|{'Package ID':^13}|{'Address':^41}|{'City':^23}|{'State':^7}|{'Zip':^7}|{'Weight (kg)':^13}|"
+        f"{'Loading Time':^21}|{'Delivery Time':^21}|{'Deadline':^13}|{'Delivery Status':^21}|"))
 
     # display information for all packages or user specified package
     if user_package_id is None:
@@ -319,16 +319,24 @@ def execute_simulation(user_end_time=None):
             package_id = raw_package[0].id
             package = package_hash_table.lookup_package(package_id)
             string = (
-                f"|{package_id:^12}|{package.lookup_address():^40}|{package.lookup_city():^24}|"
-                f"{package.lookup_state():^8}|{package.lookup_zip():^8}|{package.lookup_weight():^14}|"
-                f"{package.lookup_loading_time():^20}|{package.lookup_delivery_time():^20}|"
-                f"{package.lookup_deadline():^14}|")
+                f"|{package_id:^13}|{package.lookup_address():^41}|{package.lookup_city():^23}|"
+                f"{package.lookup_state():^7}|{package.lookup_zip():^7}|{package.lookup_weight():^13}|"
+                f"{package.lookup_loading_time():^21}|{package.lookup_delivery_time():^21}|"
+                f"{package.lookup_deadline():^13}|{package.lookup_delivery_status():^21}|")
             if package_id == 40:
                 package_40_string = string
             else:
                 print(string)
 
-    print(package_40_string)
+        print(package_40_string)
+    else:
+        user_package = package_hash_table.lookup_package(user_package_id)
+        string = (
+            f"|{user_package_id:^13}|{user_package.lookup_address():^41}|{user_package.lookup_city():^23}|"
+            f"{user_package.lookup_state():^7}|{user_package.lookup_zip():^7}|{user_package.lookup_weight():^13}|"
+            f"{user_package.lookup_loading_time():^21}|{user_package.lookup_delivery_time():^21}|"
+            f"{user_package.lookup_deadline():^13}|{user_package.lookup_delivery_status():^21}|")
+        print(string)
 
     print(f"Truck 1 traveled {round(truck1.get_truck_distance())} miles.")
     print(f"Truck 2 traveled {round(truck2.get_truck_distance())} miles.")
@@ -350,8 +358,9 @@ if __name__ == '__main__':
         print("\nOptions:")
         print("1. Deliver All Packages")
         print("2. View Status at a Certain Time")
-        print("3. Close the Program")
-        option = input("Choose an option (1, 2, or 3): ")
+        print("3. View Status of a Specific Package")
+        print("4. Close the Program")
+        option = input("Choose an option (1, 2, 3, or 4): ")
         if option == "1":
             execute_simulation()
         elif option == "2":
@@ -389,14 +398,59 @@ if __name__ == '__main__':
             # for logical comparisons that check for
             # Truck 1's loading and when to stop and check status
             user_time_string = f"{hours}:{mins} {am_or_pm}"
-            user_time_mins = time_string_to_mins((user_time_string))
+            user_time_mins = time_string_to_mins(user_time_string)
 
             # reformat the string so minutes have a leading 0 when appropriate
             formatted_time_string = mins_to_time_string(user_time_mins)
 
-            print(f"Checking status at {formatted_time_string}.")
+            print(f"Checking status of all packages at {formatted_time_string}.")
             execute_simulation(user_time_mins)
         elif option == "3":
+            package_id = ""
+            hours = ""
+            mins = ""
+            am_or_pm = ""
+
+            need_valid_package_id = True
+            while need_valid_package_id:
+                package_id = int(input("Package ID (1 - 40)? "))
+                if package_id >= 1 and package_id <= 40:
+                    need_valid_package_id = False
+                else:
+                    print("Please enter a value between 1 and 40.")
+
+            need_valid_hours = True
+            while need_valid_hours:
+                hours = int(input("Hours (1 - 12)? "))
+                if hours >= 1 and hours <= 12:
+                    need_valid_hours = False
+                else:
+                    print("Please enter a value between 1 and 12.")
+
+            need_valid_minutes = True
+            while need_valid_minutes:
+                mins = int(input("Minutes (0 - 59)? "))
+                if mins >= 0 and mins <= 59:
+                    need_valid_minutes = False
+                else:
+                    print("Please enter a value between 0 and 59.")
+
+            need_valid_am_or_pm = True
+            while need_valid_am_or_pm:
+                am_or_pm = input("AM or PM? ")
+                if am_or_pm == "AM" or am_or_pm == "PM":
+                    need_valid_am_or_pm = False
+                else:
+                    print("Please choose either AM or PM.")
+
+            user_time_string = f"{hours}:{mins} {am_or_pm}"
+            user_time_mins = time_string_to_mins(user_time_string)
+
+            formatted_time_string = mins_to_time_string(user_time_mins)
+
+            print(f"Checking status of package #{package_id} at {formatted_time_string}.")
+            execute_simulation(user_time_mins, package_id)
+        elif option == "4":
             keep_running = False
         else:
             print("That is not a valid option, please try again.")
