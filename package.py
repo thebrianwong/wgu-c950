@@ -54,8 +54,6 @@ class Package:
         return self.notes
 
     def lookup_delivery_status(self):
-        if self.delivery_status == "Delivered":
-            return f"Delivered by Truck {self.delivered_by}"
         return self.delivery_status
 
     def lookup_loading_time(self):
