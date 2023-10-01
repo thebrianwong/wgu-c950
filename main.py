@@ -307,17 +307,26 @@ def execute_simulation(user_end_time=None):
     deliver_truck_packages(truck1, distance_map, package_hash_table, special_notes_array, early_delivery_array,
                            user_end_time)
 
-    package_40_string = ""
-    for raw_package in package_hash_table:
-        package_id = raw_package[0].id
-        package = package_hash_table.lookup_package(package_id)
-        string = (
-            f"| Package ID: {package_id:^6} | Loading Time: {package.lookup_loading_time():^21} | "
-            f"Delivery Time: {package.lookup_delivery_time():^21} | Deadline: {package.lookup_deadline():^11} |")
-        if package_id == 40:
-            package_40_string = string
-        else:
-            print(string)
+    # display header
+    print((
+        f"|{'Package ID':^12}|{'Address':^40}|{'City':^24}|{'State':^8}|{'Zip':^8}|{'Weight (kg)':^14}|"
+        f"{'Loading Time':^20}|{'Delivery Time':^20}|{'Deadline':^14}|"))
+
+    # display information for all packages or user specified package
+    if user_package_id is None:
+        package_40_string = ""
+        for raw_package in package_hash_table:
+            package_id = raw_package[0].id
+            package = package_hash_table.lookup_package(package_id)
+            string = (
+                f"|{package_id:^12}|{package.lookup_address():^40}|{package.lookup_city():^24}|"
+                f"{package.lookup_state():^8}|{package.lookup_zip():^8}|{package.lookup_weight():^14}|"
+                f"{package.lookup_loading_time():^20}|{package.lookup_delivery_time():^20}|"
+                f"{package.lookup_deadline():^14}|")
+            if package_id == 40:
+                package_40_string = string
+            else:
+                print(string)
 
     print(package_40_string)
 
